@@ -649,8 +649,17 @@ public class PokeBreed {
 
       // Default is 3, 5 with destiny knot.
       int amountOfIVsToGet = 3;
-      if (parent1Item.equals("destiny_knot") || parent2Item.equals("destiny_knot")  // [OFFICIAL]
-          || oldParent1Item.equals("Destiny Knot") || oldParent2Item.equals("Destiny Knot")) {  // [LEGACY]
+      if (parent1Item.equals("destiny_knot") || oldParent1Item.equals("Destiny Knot")) {
+        if (VeryScuffedCobblemonBreedingConfig.CONSUME_BREEDING_HELD_ITEMS == 1) {
+          breederPokemon1.removeHeldItem();
+        }
+        amountOfIVsToGet = 5;
+      }
+
+      if (parent2Item.equals("destiny_knot") || oldParent2Item.equals("Destiny Knot")) {  // [LEGACY]
+        if (VeryScuffedCobblemonBreedingConfig.CONSUME_BREEDING_HELD_ITEMS == 1) {
+          breederPokemon2.removeHeldItem();
+        }
         amountOfIVsToGet = 5;
       }
 
