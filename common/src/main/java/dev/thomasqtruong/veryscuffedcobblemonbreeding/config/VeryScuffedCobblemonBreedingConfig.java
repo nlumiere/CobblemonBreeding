@@ -18,10 +18,12 @@ public class VeryScuffedCobblemonBreedingConfig {
             .disableHtmlEscaping()
             .setPrettyPrinting()
             .create();
-    public static int COMMAND_POKEBREED_PERMISSION_LEVEL = 2;      // Default for MC is 2.
+    public static int COMMAND_POKEBREED_PERMISSION_LEVEL = 3;      // Default for MC is 2.
     public static int VIP_COMMAND_POKEBREED_PERMISSION_LEVEL = 3;  // VIP permission level.
     public static int COOLDOWN_IN_MINUTES = 5;      // Default: 5 minutes cooldown.
-    public static int VIP_COOLDOWN_IN_MINUTES = 3;  // VIP breeding cooldown, default: 3.
+    public static int VIP_COOLDOWN_IN_MINUTES = 0;  // VIP breeding cooldown, default: 3.
+
+    public static int POKEMON_COOLDOWN_IN_MINUTES = 15;
     public static int DITTO_BREEDING = 1;  // Whether breeding with a ditto is allowed or not, default: 1 (true).
     public static int HIDDEN_ABILITY = 1;  // Whether passing down hidden abilities is enabled: 1 (true).
 
@@ -47,13 +49,14 @@ public class VeryScuffedCobblemonBreedingConfig {
 
             JsonObject permLevels = obj.get("permissionlevels").getAsJsonObject();
             HashMap<String, Integer> permissionMap = GSON.fromJson(permLevels, type);
-            COMMAND_POKEBREED_PERMISSION_LEVEL = permissionMap.getOrDefault("command.pokebreed", 2);
+            COMMAND_POKEBREED_PERMISSION_LEVEL = permissionMap.getOrDefault("command.pokebreed",  3);
             VIP_COMMAND_POKEBREED_PERMISSION_LEVEL = permissionMap.getOrDefault("command.vippokebreed", 3);
 
             JsonObject cooldowns = obj.get("cooldowns").getAsJsonObject();
             HashMap<String, Integer> cooldownsMap = GSON.fromJson(cooldowns, type);
             COOLDOWN_IN_MINUTES = cooldownsMap.getOrDefault("command.pokebreed.cooldown", 5);
-            VIP_COOLDOWN_IN_MINUTES = cooldownsMap.getOrDefault("command.pokebreed.vipcooldown", 3);
+            VIP_COOLDOWN_IN_MINUTES = cooldownsMap.getOrDefault("command.pokebreed.vipcooldown", 0);
+            POKEMON_COOLDOWN_IN_MINUTES = cooldownsMap.getOrDefault("command.pokebreed.pokemoncooldown", 15);
 
             JsonObject otherFeatures = obj.get("otherFeatures").getAsJsonObject();
             HashMap<String, Integer> otherFeaturesMap = GSON.fromJson(otherFeatures, type);

@@ -235,7 +235,7 @@ public class PokeBreedHandlerFactory implements NamedScreenHandlerFactory {
         if (breedSession.cancelled) {
           player.sendMessage(Text.literal("Breeding has been cancelled.")
                   .formatted(Formatting.RED));
-          player.closeHandledScreen();
+          breedSession.breeder.closeHandledScreen();
         }
 
         // Clicked accept.

@@ -1,13 +1,14 @@
 package dev.thomasqtruong.veryscuffedcobblemonbreeding.fabric
 
-import com.cobblemon.mod.common.api.permission.CobblemonPermission
-import com.cobblemon.mod.common.api.permission.CobblemonPermissions
 import dev.thomasqtruong.veryscuffedcobblemonbreeding.VeryScuffedCobblemonBreeding
+import dev.thomasqtruong.veryscuffedcobblemonbreeding.fabric.events.UseEntityHandler
 import net.fabricmc.api.ModInitializer
+import net.fabricmc.fabric.api.event.player.UseEntityCallback
 
 class CobblemonFabric : ModInitializer {
     override fun onInitialize() {
         System.out.println("Fabric Mod init");
         VeryScuffedCobblemonBreeding.initialize();
+        UseEntityCallback.EVENT.register(UseEntityHandler())
     }
 }

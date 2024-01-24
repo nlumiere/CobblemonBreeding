@@ -13,6 +13,8 @@ import net.minecraft.server.command.ServerCommandSource
 object VeryScuffedCobblemonBreeding {
   public lateinit var permissions: VeryScuffedCobblemonBreedingPermissions
   const val MODID = "veryscuffedcobblemonbreeding"
+  val pokebreed = PokeBreed()
+
   fun initialize() {
     System.out.println("VeryScuffedCobblemonBreedingPermissions - Initialized")
     VeryScuffedCobblemonBreedingConfig() // must load before permissions so perms use default permission level.
@@ -29,6 +31,6 @@ object VeryScuffedCobblemonBreeding {
     registry: CommandRegistryAccess,
     selection: CommandManager.RegistrationEnvironment
   ) {
-    PokeBreed().register(dispatcher)
+    pokebreed.register(dispatcher)
   }
 }
