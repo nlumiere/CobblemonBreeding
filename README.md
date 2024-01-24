@@ -35,7 +35,12 @@ My attempt to create a scuffed Cobblemon "breeding" for my friends and I to use.
 ## Dependencies
 - Architectury: [Modrinth](https://modrinth.com/mod/architectury-api) | [CurseForge](https://www.curseforge.com/minecraft/mc-mods/architectury-api)
 
-## How to use:
+## How to use (from gameplay):
+- Instead of using op commands, breed pokemon by feeding them diamonds (soon to be other things depending on egg group)
+- They will instantly breed the moment breeding conditions are met, similar to minecraft mobs but without the tricky animations.
+- Bred pokemon are placed on cooldown which is changable in the config file.
+
+## How to use (Original):
 1. Open up the breeding GUI.
     - Command: /pokebreed
     - ![image](https://user-images.githubusercontent.com/58405482/232265114-48c663b1-8966-4f62-8911-6519d7d2cc9e.png)
@@ -69,7 +74,7 @@ My attempt to create a scuffed Cobblemon "breeding" for my friends and I to use.
 
 ## Configs
 ### Permissions
-- command.pokebreed - default is level 2.
+- command.pokebreed - default is level 3.
   - 0 = anyone can use it.
 - command.vippokebreed - permission level to get VIP cooldown.
 ### Cooldowns
