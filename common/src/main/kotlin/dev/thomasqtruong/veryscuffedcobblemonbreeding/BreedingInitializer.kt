@@ -1,6 +1,7 @@
 package dev.thomasqtruong.veryscuffedcobblemonbreeding
 
 import dev.thomasqtruong.veryscuffedcobblemonbreeding.config.VeryScuffedCobblemonBreedingConfig.POKEMON_COOLDOWN_IN_MINUTES
+import dev.thomasqtruong.veryscuffedcobblemonbreeding.config.VeryScuffedCobblemonBreedingConfig.CONSUME_BREEDING_STIMULUS_ITEM
 import com.cobblemon.mod.common.Cobblemon.storage
 import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
@@ -23,7 +24,7 @@ class BreedingInitializer {
         private val pokemonRefactoryPeriod: HashMap<UUID, Double> = HashMap()
         fun attemptBreeding(player: PlayerEntity, hand: Hand, entity: Entity): ActionResult {
             val heldItemStack: ItemStack = player.getStackInHand(hand) ?: return ActionResult.PASS
-            if (shouldTryBreeding(player, heldItemStack.item, entity)) {
+            if (shouldTryBreeding(player, heldItemStack, entity)) {
                 val pokemonEntity = entity as PokemonEntity
                 val pokemon = pokemonEntity.pokemon
                 pokemonBreedingMap[pokemon.uuid] = true
@@ -46,7 +47,7 @@ class BreedingInitializer {
                         player.sendMessage(Text.literal("${pokemon.species} is trying to breed."))
                     }
 
-                    val newItemStack = ItemStack(heldItemStack.item, heldItemStack.count.dec())
+                    val newItemStack = ItemStack(heldItemStack.item, heldItemStack.count - CONSUME_BREEDING_STIMULUS_ITEM)
                     player.setStackInHand(hand, newItemStack)
                     return ActionResult.SUCCESS
                 }
@@ -72,8 +73,8 @@ class BreedingInitializer {
             return (milliseconds - System.currentTimeMillis().toDouble()).toInt()/1000
         }
 
-        private fun shouldTryBreeding(player: PlayerEntity, item: Item, entity: Entity): Boolean {
-            if (item != Items.DIAMOND){
+        private fun shouldTryBreeding(player: PlayerEntity, itemStack: ItemStack, entity: Entity): Boolean {
+            if (itemStack.item != Items.DIAMOND || itemStack.count < CONSUME_BREEDING_STIMULUS_ITEM){
                 return false
             }
 

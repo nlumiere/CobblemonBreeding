@@ -11,9 +11,7 @@ import com.cobblemon.mod.common.api.pokemon.PokemonSpecies;
 import com.cobblemon.mod.common.api.pokemon.egg.EggGroup;
 import com.cobblemon.mod.common.api.pokemon.stats.Stats;
 import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore;
-import com.cobblemon.mod.common.pokemon.EVs;
 import com.cobblemon.mod.common.pokemon.Gender;
-import com.cobblemon.mod.common.pokemon.IVs;
 import com.cobblemon.mod.common.pokemon.Nature;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.cobblemon.mod.common.pokemon.Species;
@@ -660,9 +658,15 @@ public class PokeBreed {
       int powerItemsCount = 0;
       if (powerItemsMap.containsKey(parent1Item) || oldPowerItemsMap.containsKey(oldParent1Item)) {
         ++powerItemsCount;
+        if (VeryScuffedCobblemonBreedingConfig.CONSUME_BREEDING_HELD_ITEMS == 1) {
+          breederPokemon1.removeHeldItem();
+        }
       }
       if (powerItemsMap.containsKey(parent2Item) || oldPowerItemsMap.containsKey(oldParent2Item)) {
         ++powerItemsCount;
+        if (VeryScuffedCobblemonBreedingConfig.CONSUME_BREEDING_HELD_ITEMS == 1) {
+          breederPokemon2.removeHeldItem();
+        }
       }
 
       // Initially select parent1 to get IVs from.

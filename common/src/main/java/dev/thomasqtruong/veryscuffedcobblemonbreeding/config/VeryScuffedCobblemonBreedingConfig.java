@@ -27,6 +27,10 @@ public class VeryScuffedCobblemonBreedingConfig {
     public static int DITTO_BREEDING = 1;  // Whether breeding with a ditto is allowed or not, default: 1 (true).
     public static int HIDDEN_ABILITY = 1;  // Whether passing down hidden abilities is enabled: 1 (true).
 
+    public static int CONSUME_BREEDING_HELD_ITEMS = 0; // Whether breeding should consume held items: 1 (true).
+
+    public static int CONSUME_BREEDING_STIMULUS_ITEM = 1; // Rate at which player's items they use to cause breeding should be consumed: 1
+
     public VeryScuffedCobblemonBreedingConfig() {
         init();
     }
@@ -62,6 +66,8 @@ public class VeryScuffedCobblemonBreedingConfig {
             HashMap<String, Integer> otherFeaturesMap = GSON.fromJson(otherFeatures, type);
             DITTO_BREEDING = otherFeaturesMap.getOrDefault("ditto.breeding", 1);
             HIDDEN_ABILITY = otherFeaturesMap.getOrDefault("hidden.ability", 1);
+            CONSUME_BREEDING_HELD_ITEMS = otherFeaturesMap.getOrDefault("consume.helditem", 0);
+            CONSUME_BREEDING_STIMULUS_ITEM = otherFeaturesMap.getOrDefault("consume.playeritem", 1);
 
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -94,6 +100,10 @@ public class VeryScuffedCobblemonBreedingConfig {
                             .value(DITTO_BREEDING)
                             .name("hidden.ability")
                             .value(HIDDEN_ABILITY)
+                            .name("consume.helditem")
+                            .value(CONSUME_BREEDING_HELD_ITEMS)
+                            .name("consume.playeritem")
+                            .value(CONSUME_BREEDING_STIMULUS_ITEM)
                         .endObject()
                     .endObject()
                     .flush();
