@@ -44,6 +44,7 @@ My attempt to create a scuffed Cobblemon "breeding" for my friends and I to use.
     - These egg group items can be viewed in-game with the command `/breedhelp`
 - Admin can choose if breeding items are consumed in the process (recommended for large/competitive servers).
 - *These settings can be found in config*
+- Niche case: If multiple pokemon of the same gender are attempting to breed, the first pokemon of the opposite gender that attempts to breed will mate with the higher pokemon in the party.
 
 ## How to use (Original):
 1. Open up the breeding GUI.
