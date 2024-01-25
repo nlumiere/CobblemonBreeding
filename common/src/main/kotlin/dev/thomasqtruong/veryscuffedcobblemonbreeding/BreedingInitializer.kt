@@ -6,15 +6,16 @@ import com.cobblemon.mod.common.Cobblemon.storage
 import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.pokemon.Pokemon
+import dev.thomasqtruong.veryscuffedcobblemonbreeding.config.VeryScuffedCobblemonBreedingConfig
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
-import net.minecraft.item.Items
+import net.minecraft.registry.Registries
 import net.minecraft.text.Text
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Formatting
 import net.minecraft.util.Hand
+import net.minecraft.util.Identifier
 import java.util.*
 
 class BreedingInitializer {
@@ -22,7 +23,12 @@ class BreedingInitializer {
         private val pokemonBreedingMap: HashMap<UUID, Boolean> = HashMap()
         // Just like a player's time since last bred, but for pokemon. Gotta let them rest.
         private val pokemonRefactoryPeriod: HashMap<UUID, Double> = HashMap()
+        private var run = false // Used to prevent spamming user with duplicates of same message
         fun attemptBreeding(player: PlayerEntity, hand: Hand, entity: Entity): ActionResult {
+            run = !run
+            if (!run) { // There are two valid actions being sent for some reason? This eliminates one.
+                return ActionResult.PASS
+            }
             val heldItemStack: ItemStack = player.getStackInHand(hand) ?: return ActionResult.PASS
             if (shouldTryBreeding(player, heldItemStack, entity)) {
                 val pokemonEntity = entity as PokemonEntity
@@ -57,7 +63,6 @@ class BreedingInitializer {
             return ActionResult.PASS
         }
 
-
         private fun pokemonWantsToBreed(uuid: UUID): Boolean {
             return pokemonBreedingMap.containsKey(uuid) && pokemonBreedingMap[uuid] == true
         }
@@ -74,12 +79,32 @@ class BreedingInitializer {
         }
 
         private fun shouldTryBreeding(player: PlayerEntity, itemStack: ItemStack, entity: Entity): Boolean {
-            if (itemStack.item != Items.DIAMOND || itemStack.count < CONSUME_BREEDING_STIMULUS_ITEM){
+            if (itemStack.count < CONSUME_BREEDING_STIMULUS_ITEM) {
+                return false;
+            }
+
+            if (VeryScuffedCobblemonBreedingConfig.USE_SINGULAR_BREEDING_ITEM == 1 && itemStack.item != Registries.ITEM.get(Identifier.tryParse(VeryScuffedCobblemonBreedingConfig.SINGULAR_ITEM))){
                 return false
             }
 
             try {
                 val pokemon = entity as PokemonEntity
+
+                if (VeryScuffedCobblemonBreedingConfig.USE_SINGULAR_BREEDING_ITEM != 1) {
+                    val eggGroups = pokemon.pokemon.form.eggGroups
+                    var eggGroupItemMatch = false
+
+                    eggGroups.forEach {
+                        if (itemStack.item == Registries.ITEM.get(Identifier.tryParse(VeryScuffedCobblemonBreedingConfig.EGG_GROUP_ITEMS[it]))) {
+                            eggGroupItemMatch = true
+                        }
+                    }
+
+                    if (!eggGroupItemMatch) {
+                        return false
+                    }
+                }
+
                 val time = secondsUntilPokemonCanBreed(pokemon.pokemon.uuid)
                 if (time > 0) {
                     player.sendMessage(Text.literal("Pokemon will be ready for breeding again in $time seconds").formatted(Formatting.RED))
