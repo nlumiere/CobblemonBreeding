@@ -69,6 +69,9 @@ public class PokeBreed {
                             VeryScuffedCobblemonBreeding.permissions.VIP_POKEBREED_PERMISSION))
                     .executes(this::execute)
     );
+    dispatcher.register(
+            literal("breedhelp").requires(src -> VeryScuffedCobblemonBreedingPermissions.checkPermission(src, VeryScuffedCobblemonBreeding.permissions.BREEDHELP_PERMISSION)).executes(this::executehelp)
+    );
 
     // Set up scheduler.
     scheduler = new ScheduledThreadPoolExecutor(1, r -> {
@@ -165,6 +168,28 @@ public class PokeBreed {
       breedSessions.put(player.getUuid(), breedSession);
       breedSession.start();
     }
+    return 1;
+  }
+
+
+  /**
+   * Prints all the egg group breeding items.
+   *
+   * @param ctx - the command context.
+   */
+  private int executehelp(CommandContext<ServerCommandSource> ctx) {
+    ServerPlayerEntity player = ctx.getSource().getPlayer();
+    if (player == null) {
+      return -1;
+    }
+
+    if (VeryScuffedCobblemonBreedingConfig.USE_SINGULAR_BREEDING_ITEM == 1) {
+      player.sendMessage(Text.literal("Use " + VeryScuffedCobblemonBreedingConfig.SINGULAR_ITEM + " to breed pokemon."));
+    }
+    else {
+      VeryScuffedCobblemonBreedingConfig.EGG_GROUP_ITEMS.forEach((key, value) -> player.sendMessage(Text.literal(key.toString() + ": " + value)));
+    }
+
     return 1;
   }
 

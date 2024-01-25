@@ -11,9 +11,12 @@ public class VeryScuffedCobblemonBreedingPermissions {
     public final CobblemonPermission POKEBREED_PERMISSION;
     public final CobblemonPermission VIP_POKEBREED_PERMISSION;
 
+    public final CobblemonPermission BREEDHELP_PERMISSION;
+
     public VeryScuffedCobblemonBreedingPermissions() {
         this.POKEBREED_PERMISSION = new CobblemonPermission("veryscuffedcobblemonbreeding.command.pokebreed", toPermLevel(VeryScuffedCobblemonBreedingConfig.COMMAND_POKEBREED_PERMISSION_LEVEL));
         this.VIP_POKEBREED_PERMISSION = new CobblemonPermission("veryscuffedcobblemonbreeding.command.vippokebreed", toPermLevel(VeryScuffedCobblemonBreedingConfig.VIP_COMMAND_POKEBREED_PERMISSION_LEVEL));
+        this.BREEDHELP_PERMISSION = new CobblemonPermission("veryscuffedcobblemonbreeding.command.breedhelp", toPermLevel(0));
     }
 
     public PermissionLevel toPermLevel(int permLevel) {

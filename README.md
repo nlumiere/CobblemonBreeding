@@ -35,10 +35,15 @@ My attempt to create a scuffed Cobblemon "breeding" for my friends and I to use.
 ## Dependencies
 - Architectury: [Modrinth](https://modrinth.com/mod/architectury-api) | [CurseForge](https://www.curseforge.com/minecraft/mc-mods/architectury-api)
 
-## How to use (from gameplay):
-- Instead of using op commands, breed pokemon by feeding them diamonds (soon to be other things depending on egg group)
+## How to use (from gameplay) Currently Fabric Only:
+- Instead of using op commands, breed pokemon by feeding them breeding items, just like wheat for cows or sheep.
 - They will instantly breed the moment breeding conditions are met, similar to minecraft mobs but without the tricky animations.
 - Bred pokemon are placed on cooldown which is changable in the config file.
+- Admin can choose whether or not player items (and which items) are consumed in the breeding process.
+- Admin can choose if the items consumed to initiate the breeding process are the same for all pokemon, or based on egg group.
+    - These egg group items can be viewed in-game with the command `/breedhelp`
+- Admin can choose if breeding items are consumed in the process (recommended for large/competitive servers).
+- *These settings can be found in config*
 
 ## How to use (Original):
 1. Open up the breeding GUI.
