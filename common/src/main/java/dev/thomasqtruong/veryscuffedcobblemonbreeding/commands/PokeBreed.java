@@ -23,6 +23,7 @@ import dev.thomasqtruong.veryscuffedcobblemonbreeding.config.VeryScuffedCobblemo
 import dev.thomasqtruong.veryscuffedcobblemonbreeding.permissions.VeryScuffedCobblemonBreedingPermissions;
 import dev.thomasqtruong.veryscuffedcobblemonbreeding.screen.PokeBreedHandlerFactory;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -796,6 +797,12 @@ public class PokeBreed {
       // Both have everstones.
       if ((parent1Item.equals("everstone") || oldParent1Item.equals("Everstone"))
           && (parent2Item.equals("everstone") || oldParent2Item.equals("Everstone"))) {
+
+        if (VeryScuffedCobblemonBreedingConfig.CONSUME_BREEDING_HELD_ITEMS == 1) {
+          breederPokemon1.removeHeldItem();
+          breederPokemon2.removeHeldItem();
+        }
+
         int parentRNG = RNG.nextInt(2);
         // First parent's nature inherited.
         if (parentRNG == 0) {
@@ -806,9 +813,15 @@ public class PokeBreed {
       }
       // Only parent 1 has everstone.
       if (parent1Item.equals("everstone") || oldParent1Item.equals("Everstone")) {
+        if (VeryScuffedCobblemonBreedingConfig.CONSUME_BREEDING_HELD_ITEMS == 1) {
+          breederPokemon1.removeHeldItem();
+        }
         return breederPokemon1.getNature();
       }
       if (parent2Item.equals("everstone") || oldParent2Item.equals("Everstone")) {
+        if (VeryScuffedCobblemonBreedingConfig.CONSUME_BREEDING_HELD_ITEMS == 1) {
+          breederPokemon2.removeHeldItem();
+        }
         return breederPokemon2.getNature();
       }
 
