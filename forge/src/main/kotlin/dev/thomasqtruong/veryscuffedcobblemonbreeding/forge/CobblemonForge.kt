@@ -2,7 +2,7 @@ package dev.thomasqtruong.veryscuffedcobblemonbreeding.forge
 
 import dev.architectury.platform.forge.EventBuses
 import dev.thomasqtruong.veryscuffedcobblemonbreeding.VeryScuffedCobblemonBreeding
-import java.util.*
+import dev.thomasqtruong.veryscuffedcobblemonbreeding.forge.events.ForgeEventHandler
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLDedicatedServerSetupEvent
@@ -15,6 +15,7 @@ class VeryScuffedCobblemonBreeding {
             addListener(this@VeryScuffedCobblemonBreeding::initialize)
             addListener(this@VeryScuffedCobblemonBreeding::serverInit)
         }
+        ForgeEventHandler.register()
     }
 
     fun serverInit(event: FMLDedicatedServerSetupEvent) {
