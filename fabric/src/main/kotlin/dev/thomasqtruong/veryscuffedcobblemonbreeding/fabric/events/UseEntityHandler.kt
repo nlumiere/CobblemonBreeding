@@ -30,15 +30,16 @@ class UseEntityHandler : UseEntityCallback {
             return ActionResult.PASS
         }
 
-        if (executed) {
-            executed = false
-            return ActionResult.PASS
+        if (!executed) {
+            val response = BreedingInitializer.attemptBreeding(player, hand, entity)
+            if (response == ActionResult.SUCCESS) {
+                executed = true
+            }
+            return response
         }
 
-        val response = BreedingInitializer.attemptBreeding(player, hand, entity)
-        if (response == ActionResult.SUCCESS) {
-            executed = true
-        }
-        return response
+        executed = false
+
+        return ActionResult.PASS
     }
 }

@@ -90,6 +90,10 @@ class BreedingInitializer {
             try {
                 val pokemon = entity as PokemonEntity
 
+                if (pokemonBreedingMap.containsKey(pokemon.pokemon.uuid) && pokemonBreedingMap[pokemon.pokemon.uuid] == true) {
+                    return false
+                }
+
                 if (VeryScuffedCobblemonBreedingConfig.USE_SINGULAR_BREEDING_ITEM != 1) {
                     val eggGroups = pokemon.pokemon.form.eggGroups
                     var eggGroupItemMatch = false
