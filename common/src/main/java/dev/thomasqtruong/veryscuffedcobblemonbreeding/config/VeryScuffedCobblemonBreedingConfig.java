@@ -92,6 +92,7 @@ public class VeryScuffedCobblemonBreedingConfig {
             EGG_GROUP_ITEMS.put(EggGroup.BUG, breedingItemChoicesMap.getOrDefault("bug", "minecraft:emerald"));
             EGG_GROUP_ITEMS.put(EggGroup.FLYING, breedingItemChoicesMap.getOrDefault("flying", "cobblemon:sky_tumblestone"));
             EGG_GROUP_ITEMS.put(EggGroup.FIELD, breedingItemChoicesMap.getOrDefault("field", "minecraft:goat_horn"));
+            EGG_GROUP_ITEMS.put(EggGroup.FAIRY, breedingItemChoicesMap.getOrDefault("fairy", "minecraft:golden_apple"));
             EGG_GROUP_ITEMS.put(EggGroup.GRASS, breedingItemChoicesMap.getOrDefault("grass", "minecraft:scute"));
             EGG_GROUP_ITEMS.put(EggGroup.HUMAN_LIKE, breedingItemChoicesMap.getOrDefault("humanlike", "minecraft:waxed_oxidized_copper"));
             EGG_GROUP_ITEMS.put(EggGroup.MINERAL, breedingItemChoicesMap.getOrDefault("mineral", "minecraft:amethyst_cluster"));
@@ -112,6 +113,7 @@ public class VeryScuffedCobblemonBreedingConfig {
         EGG_GROUP_ITEMS.put(EggGroup.BUG, "minecraft:emerald");
         EGG_GROUP_ITEMS.put(EggGroup.FLYING, "cobblemon:sky_tumblestone");
         EGG_GROUP_ITEMS.put(EggGroup.FIELD, "minecraft:goat_horn");
+        EGG_GROUP_ITEMS.put(EggGroup.FAIRY, "minecraft:golden_apple");
         EGG_GROUP_ITEMS.put(EggGroup.GRASS, "minecraft:scute");
         EGG_GROUP_ITEMS.put(EggGroup.HUMAN_LIKE, "minecraft:waxed_oxidized_copper");
         EGG_GROUP_ITEMS.put(EggGroup.MINERAL, "minecraft:amethyst_cluster");
