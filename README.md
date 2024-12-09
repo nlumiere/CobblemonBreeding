@@ -1,4 +1,5 @@
 # Very Scuffed Cobblemon Breeding (Mod)
+## Original writeup by Thomas:
 My attempt to create a scuffed Cobblemon "breeding" for my friends and I to use.
 - This is my first ever mod! :)
 - It is an instant breeding system with a 5-minute default cooldown.
@@ -26,6 +27,10 @@ My attempt to create a scuffed Cobblemon "breeding" for my friends and I to use.
         - Hidden abilities are supported.
           - 60% chance to pass down if either parents have a hidden ability.
           - Can be disabled in config.
+
+## IMPORTANT BUILD INFORMATION!
+- This mod requires jdk 17 to build. Install java locally, such that JAVA_HOME points to some 17.x, and `java --version` is 17.x or not defined.
+- If building through intellij, ensure the above is true, and also install jvm version 17. Use Ctrl + Shift + Alt + S to open the menu. 
 
 ## Download
 - [Github](https://github.com/ThomasQTruong/VeryScuffedCobblemonBreeding/releases)
