@@ -28,11 +28,7 @@ object VeryScuffedCobblemonBreeding {
     return this.LOGGER;
   }
 
-  fun registerCommands(
-    dispatcher: CommandDispatcher<ServerCommandSource>,
-    registry: CommandRegistryAccess,
-    selection: CommandManager.RegistrationEnvironment
-  ) {
-    pokebreed.register(dispatcher)
+  fun registerCommands(dispatcher: CommandDispatcher<CommandSourceStack>) {
+    PokeBreed().register(dispatcher)
   }
 }

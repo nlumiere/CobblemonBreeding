@@ -15,6 +15,7 @@ import com.cobblemon.mod.common.pokemon.Gender;
 import com.cobblemon.mod.common.pokemon.Nature;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.cobblemon.mod.common.pokemon.Species;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
@@ -30,14 +31,6 @@ import net.minecraft.commands.Commands;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Formatting;
 
 
 import java.util.*;
@@ -78,7 +71,7 @@ public class PokeBreed {
                     .executes(this::execute)
     );
     dispatcher.register(
-            literal("breedhelp").requires(src -> VeryScuffedCobblemonBreedingPermissions.checkPermission(src, VeryScuffedCobblemonBreeding.permissions.BREEDHELP_PERMISSION)).executes(this::executehelp)
+            Commands.literal("breedhelp").requires(src -> VeryScuffedCobblemonBreedingPermissions.checkPermission(src, VeryScuffedCobblemonBreeding.permissions.BREEDHELP_PERMISSION)).executes(this::execute)
     );
 
     // Set up scheduler.
@@ -99,15 +92,15 @@ public class PokeBreed {
    * @param isVIP - if the player is VIP (op).
    * @return boolean
    */
-  private boolean checkIfExecute(ServerPlayerEntity player, boolean isVIP) {
+  private boolean checkIfExecute(ServerPlayer player, boolean isVIP) {
     // Breed session already exists for player.
-    if (breedSessions.containsKey(player.getUuid())) {
-      BreedSession breedSession = breedSessions.get(player.getUuid());
+    if (breedSessions.containsKey(player.getUUID())) {
+      BreedSession breedSession = breedSessions.get(player.getUUID());
 
       // Bred never happened in the first place.
       if (breedSession.timeBred == 0) {
         breedSession.cancel("Possibly a dupelicate somehow.");
-        breedSessions.remove(player.getUuid());
+        breedSessions.remove(player.getUUID());
       } else {
         // Pokemon was bred before; check if it never got off cooldown.
         long timeSince = System.currentTimeMillis() - breedSession.timeBred;
@@ -117,22 +110,22 @@ public class PokeBreed {
           // Cooldown was supposed to be over!
           if (timeSince > 1000L * 60
                   * VeryScuffedCobblemonBreedingConfig.VIP_COOLDOWN_IN_MINUTES) {
-            breedSessions.remove(player.getUuid());
+            breedSessions.remove(player.getUUID());
           }
         } else {
           // User is not a VIP.
           // Cooldown was supposed to be over!
           if (timeSince > 1000L * 60 * VeryScuffedCobblemonBreedingConfig.COOLDOWN_IN_MINUTES) {
-            breedSessions.remove(player.getUuid());
+            breedSessions.remove(player.getUUID());
           }
         }
       }
     }
 
     // Checking if user is under cooldown still.
-    if (breedSessions.containsKey(player.getUuid())) {
+    if (breedSessions.containsKey(player.getUUID())) {
       // Get time since in seconds.
-      BreedSession breedSession = breedSessions.get(player.getUuid());
+      BreedSession breedSession = breedSessions.get(player.getUUID());
       long cooldownDuration = (System.currentTimeMillis() - breedSession.timeBred) / 1000;
       // Total cooldown time - time since = time left.
       if (isVIP) {
@@ -143,9 +136,9 @@ public class PokeBreed {
                 * 60L) - cooldownDuration;
       }
 
-      Text toSend = Text.literal("Breed cooldown: " + cooldownDuration + " seconds.")
-              .formatted(Formatting.RED);
-      player.sendMessage(toSend);
+      Component toSend = Component.literal("Breed cooldown: " + cooldownDuration + " seconds.")
+              .withStyle(ChatFormatting.RED);
+      player.sendSystemMessage(toSend);
 
       return false;
     }
@@ -234,17 +227,17 @@ public class PokeBreed {
    *
    * @param ctx - the command context.
    */
-  private int executehelp(CommandContext<ServerCommandSource> ctx) {
-    ServerPlayerEntity player = ctx.getSource().getPlayer();
+  private int executehelp(CommandContext<CommandSourceStack> ctx) {
+    ServerPlayer player = ctx.getSource().getPlayer();
     if (player == null) {
       return -1;
     }
 
     if (VeryScuffedCobblemonBreedingConfig.USE_SINGULAR_BREEDING_ITEM == 1) {
-      player.sendMessage(Text.literal("Use " + VeryScuffedCobblemonBreedingConfig.SINGULAR_ITEM + " to breed pokemon."));
+      player.sendSystemMessage(Component.literal("Use " + VeryScuffedCobblemonBreedingConfig.SINGULAR_ITEM + " to breed pokemon."));
     }
     else {
-      VeryScuffedCobblemonBreedingConfig.EGG_GROUP_ITEMS.forEach((key, value) -> player.sendMessage(Text.literal(key.toString() + ": " + value)));
+      VeryScuffedCobblemonBreedingConfig.EGG_GROUP_ITEMS.forEach((key, value) -> player.sendSystemMessage(Component.literal(key.toString() + ": " + value)));
     }
 
     return 1;
@@ -258,30 +251,26 @@ public class PokeBreed {
    * @param pokemon2 - second pokemon to be bred
    * @return ActionResult
     */
-  public ActionResult hijackBreed(PlayerEntity player, Pokemon pokemon1, Pokemon pokemon2) {
-    ServerPlayerEntity trainer = null;
-    try {
-      trainer = (ServerPlayerEntity) player;
-    }
-    catch (Exception e) {
-      player.sendMessage(Text.literal("Can't cast player to trainer."));
+  public InteractionResult hijackBreed(ServerPlayer player, Pokemon pokemon1, Pokemon pokemon2) {
+    if (false) {
+      player.sendSystemMessage(Component.literal("Can't cast player to trainer."));
     }
 
-    if (trainer == null || !checkIfExecute(trainer, true)) {
-      return ActionResult.PASS;
+    if (player == null || !checkIfExecute(player, true)) {
+      return InteractionResult.PASS;
     }
 
     try {
-      BreedSession breedSession = new BreedSession(trainer);
+      BreedSession breedSession = new BreedSession(player);
       breedSession.isVIP = true; // This is a bad design choice, but I don't care.
-      breedSessions.put(player.getUuid(), breedSession);
+      breedSessions.put(player.getUUID(), breedSession);
       breedSession.breederPokemon1 = pokemon1;
       breedSession.breederPokemon2 = pokemon2;
       return breedSession.doBreed();
     }
     catch (Exception e) {
-      player.sendMessage(Text.literal("Error in initializing breeding sequence."));
-      return ActionResult.PASS;
+      player.sendSystemMessage(Component.literal("Error in initializing breeding sequence."));
+      return InteractionResult.PASS;
     }
   }
 
@@ -365,22 +354,22 @@ public class PokeBreed {
     /**
      * Breed 2 Cobblemons together.
      */
-    public ActionResult doBreed() {
+    public InteractionResult doBreed() {
       // Breed cancelled, why are we still doing the breed?
       if (this.cancelled) {
         System.out.println("Something funky is goin' on");
         cancel("Something funky is goin' on.");
-        return ActionResult.PASS;
+        return InteractionResult.PASS;
       }
       // Only provided 1 or 0 Pokemon to breed or pokemons don't exist.
       if (breederPokemon1 == null || breederPokemon2 == null) {
         cancel("Not enough Cobblemons provided.");
-        return ActionResult.PASS;
+        return InteractionResult.PASS;
       }
 
       // Failed the breeding conditions.
       if (!checkBreed()) {
-        return ActionResult.PASS;
+        return InteractionResult.PASS;
       }
 
       // Proceeding to breed.
@@ -416,11 +405,11 @@ public class PokeBreed {
           }, VeryScuffedCobblemonBreedingConfig.COOLDOWN_IN_MINUTES, TimeUnit.MINUTES);
         }
         timeBred = System.currentTimeMillis();
-        return ActionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
       } else {
         cancel("One of the Cobblemons does not exist!");
       }
-      return ActionResult.PASS;
+      return InteractionResult.PASS;
     }
 
 
@@ -656,22 +645,7 @@ public class PokeBreed {
         return new Ability(possibleHiddens.get(intRNG), false, Priority.NORMAL);
       }
 
-      // Hit hidden ability.
-      if (intRNG < 60) {  // 0-59 (60%)
-        // Add every hidden ability to possibleDraws, draw random hidden if exists.
-        if (!possibleHiddens.isEmpty()) {
-          intRNG = RNG.nextInt(possibleHiddens.size());
-          return new Ability(possibleHiddens.get(intRNG), false);
-        }
-      } else {
-        // Did not hit hidden ability, draw random common if exists.
-        if (!possibleCommons.isEmpty()) {
-          intRNG = RNG.nextInt(possibleCommons.size());
-          return new Ability(possibleCommons.get(intRNG), false);
-        }
-      }
-
-      // No ability found.
+      // No hidden ability exists?
       return getFor.getAbility();
     }
 

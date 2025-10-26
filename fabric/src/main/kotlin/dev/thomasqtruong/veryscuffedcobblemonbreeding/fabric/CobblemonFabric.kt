@@ -1,6 +1,7 @@
 package dev.thomasqtruong.veryscuffedcobblemonbreeding.fabric
 
 import dev.thomasqtruong.veryscuffedcobblemonbreeding.VeryScuffedCobblemonBreeding
+import dev.thomasqtruong.veryscuffedcobblemonbreeding.fabric.events.UseEntityHandler
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.event.player.UseEntityCallback

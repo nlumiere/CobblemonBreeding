@@ -1,38 +1,44 @@
 package dev.thomasqtruong.veryscuffedcobblemonbreeding.fabric.events
 
-import com.cobblemon.mod.common.util.isServerSide
 import dev.thomasqtruong.veryscuffedcobblemonbreeding.BreedingInitializer
-import dev.thomasqtruong.veryscuffedcobblemonbreeding.VeryScuffedCobblemonBreeding
 import net.fabricmc.fabric.api.event.player.UseEntityCallback
-import net.minecraft.entity.Entity
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.util.ActionResult
-import net.minecraft.util.Hand
-import net.minecraft.world.World
-import net.minecraft.util.hit.EntityHitResult
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.level.Level
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.InteractionResult
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.phys.EntityHitResult
 
 class UseEntityHandler : UseEntityCallback {
 
     private var executed = false
 
     override fun interact(
-        player: PlayerEntity?,
-        world: World?,
-        hand: Hand?,
-        entity: Entity?,
+        player: Player,
+        world: Level,
+        hand: InteractionHand,
+        entity: Entity,
         hitResult: EntityHitResult?
-    ): ActionResult {
-        if (player == null || player.isSpectator || entity == null || hand == null){
-            return ActionResult.PASS
+    ): InteractionResult {
+        if (entity !is LivingEntity) {
+            return InteractionResult.PASS
         }
 
-        if (world == null || world.isClient()) {
-            return ActionResult.PASS
+        // Only handle server-side and non-spectators
+        if (world.isClientSide || player.isSpectator) {
+            return InteractionResult.PASS
+        }
+
+        // Ensure we have a server player and living entity
+        if (player !is ServerPlayer) {
+            return InteractionResult.PASS
         }
 
         if (!executed) {
             val response = BreedingInitializer.attemptBreeding(player, hand, entity)
-            if (response == ActionResult.SUCCESS) {
+            if (response == InteractionResult.SUCCESS) {
                 executed = true
             }
             return response
@@ -40,6 +46,6 @@ class UseEntityHandler : UseEntityCallback {
 
         executed = false
 
-        return ActionResult.PASS
+        return InteractionResult.PASS
     }
 }
