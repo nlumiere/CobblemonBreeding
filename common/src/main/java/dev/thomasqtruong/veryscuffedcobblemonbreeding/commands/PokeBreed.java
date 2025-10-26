@@ -30,7 +30,6 @@ import net.minecraft.commands.Commands;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
-import oshi.jna.platform.mac.SystemB;
 
 import java.util.*;
 import java.util.concurrent.Executors;
