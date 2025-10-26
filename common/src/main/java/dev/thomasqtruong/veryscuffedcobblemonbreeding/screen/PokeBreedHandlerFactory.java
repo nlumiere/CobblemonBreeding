@@ -232,10 +232,16 @@ public class PokeBreedHandlerFactory implements MenuProvider {
       public void clicked(int slotIndex, int button, ClickType actionType, Player player) {
         // If player cancels.
         if (breedSession.cancelled) {
+<<<<<<< HEAD
           ServerPlayer serverPlayer = (ServerPlayer) player;
           serverPlayer.sendSystemMessage(Component.literal("Breeding has been cancelled.")
                   .withStyle(ChatFormatting.RED));
           serverPlayer.closeContainer();
+=======
+          player.sendMessage(Text.literal("Breeding has been cancelled.")
+                  .formatted(Formatting.RED));
+          breedSession.breeder.closeHandledScreen();
+>>>>>>> 06cda350704a30d7de1ca5d18262a27e13de69f1
         }
 
         // Player clicked accept.

@@ -13,6 +13,7 @@ object VeryScuffedCobblemonBreeding {
   public lateinit var permissions: VeryScuffedCobblemonBreedingPermissions
   const val MODID = "veryscuffedcobblemonbreeding"
   var LOGGER: Logger = LogManager.getLogger("[VeryScuffedCobblemonBreeding]")
+  val pokebreed = PokeBreed()
 
   fun initialize() {
     getLogger().info("VeryScuffedCobblemonBreedingPermissions - Initialized")
@@ -27,7 +28,11 @@ object VeryScuffedCobblemonBreeding {
     return this.LOGGER;
   }
 
-  fun registerCommands(dispatcher: CommandDispatcher<CommandSourceStack>) {
-    PokeBreed().register(dispatcher)
+  fun registerCommands(
+    dispatcher: CommandDispatcher<ServerCommandSource>,
+    registry: CommandRegistryAccess,
+    selection: CommandManager.RegistrationEnvironment
+  ) {
+    pokebreed.register(dispatcher)
   }
 }
