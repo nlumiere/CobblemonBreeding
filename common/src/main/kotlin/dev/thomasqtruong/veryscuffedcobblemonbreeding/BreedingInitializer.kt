@@ -7,15 +7,15 @@ import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.pokemon.Pokemon
 import dev.thomasqtruong.veryscuffedcobblemonbreeding.config.VeryScuffedCobblemonBreedingConfig
-import net.minecraft.entity.Entity
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.registry.Registries
-import net.minecraft.text.Text
-import net.minecraft.util.ActionResult
-import net.minecraft.util.Formatting
-import net.minecraft.util.Hand
-import net.minecraft.util.Identifier
+import net.minecraft.ChatFormatting
+import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.InteractionResult
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.item.ItemStack
 import java.util.*
 
 class BreedingInitializer {
@@ -24,21 +24,21 @@ class BreedingInitializer {
         // Just like a player's time since last bred, but for pokemon. Gotta let them rest.
         private val pokemonRefactoryPeriod: HashMap<UUID, Double> = HashMap()
         private var run = false // Used to prevent spamming user with duplicates of same message
-        fun attemptBreeding(player: PlayerEntity, hand: Hand, entity: Entity): ActionResult {
+        fun attemptBreeding(player: ServerPlayer, hand: InteractionHand, entity: LivingEntity): InteractionResult {
             run = !run
             if (!run) { // There are two valid actions being sent for some reason? This eliminates one.
-                return ActionResult.PASS
+                return InteractionResult.PASS
             }
-            val heldItemStack: ItemStack = player.getStackInHand(hand) ?: return ActionResult.PASS
+            val heldItemStack: ItemStack = player.getItemInHand(hand) ?: return InteractionResult.PASS
             if (shouldTryBreeding(player, heldItemStack, entity)) {
                 val pokemonEntity = entity as PokemonEntity
                 val pokemon = pokemonEntity.pokemon
                 pokemonBreedingMap[pokemon.uuid] = true
                 try {
-                    val breederParty = storage.getParty(player.uuid)
+                    val breederParty = storage.getParty(player)
                     val mate: Pokemon? = checkTrainerPokemonForMate(player, breederParty, pokemon)
                     if (mate != null) {
-                        if (tryRunBreed(player, pokemon, mate) == ActionResult.SUCCESS) {
+                        if (tryRunBreed(player, pokemon, mate) == InteractionResult.SUCCESS) {
                             pokemonBreedingMap[pokemon.uuid] = false
                             pokemonBreedingMap[mate.uuid] = false
                             val millis: Double = POKEMON_COOLDOWN_IN_MINUTES.toDouble()*60*1000
@@ -46,21 +46,21 @@ class BreedingInitializer {
                             pokemonRefactoryPeriod[mate.uuid] = millis + System.currentTimeMillis()
                         }
                         else {
-                            return ActionResult.PASS
+                            return InteractionResult.PASS
                         }
                     }
                     else {
-                        player.sendMessage(Text.literal("${pokemon.species} is trying to breed."))
+                        player.sendSystemMessage(Component.literal("${pokemon.species} is trying to breed."))
                     }
 
                     val newItemStack = ItemStack(heldItemStack.item, heldItemStack.count - CONSUME_BREEDING_STIMULUS_ITEM)
-                    player.setStackInHand(hand, newItemStack)
-                    return ActionResult.SUCCESS
+                    player.setItemInHand(hand, newItemStack)
+                    return InteractionResult.SUCCESS
                 }
                 catch (_: Exception) {}
             }
 
-            return ActionResult.PASS
+            return InteractionResult.PASS
         }
 
         private fun pokemonWantsToBreed(uuid: UUID): Boolean {
@@ -78,12 +78,12 @@ class BreedingInitializer {
             return (milliseconds - System.currentTimeMillis().toDouble()).toInt()/1000
         }
 
-        private fun shouldTryBreeding(player: PlayerEntity, itemStack: ItemStack, entity: Entity): Boolean {
+        private fun shouldTryBreeding(player: ServerPlayer, itemStack: ItemStack, entity: LivingEntity): Boolean {
             if (itemStack.count < CONSUME_BREEDING_STIMULUS_ITEM) {
                 return false;
             }
 
-            if (VeryScuffedCobblemonBreedingConfig.USE_SINGULAR_BREEDING_ITEM == 1 && itemStack.item != Registries.ITEM.get(Identifier.tryParse(VeryScuffedCobblemonBreedingConfig.SINGULAR_ITEM))){
+            if (VeryScuffedCobblemonBreedingConfig.USE_SINGULAR_BREEDING_ITEM == 1 && itemStack.item != BuiltInRegistries.ITEM.get(ResourceLocation.parse(VeryScuffedCobblemonBreedingConfig.SINGULAR_ITEM))){
                 return false
             }
 
@@ -99,7 +99,11 @@ class BreedingInitializer {
                     var eggGroupItemMatch = false
 
                     eggGroups.forEach {
-                        if (itemStack.item == Registries.ITEM.get(Identifier.tryParse(VeryScuffedCobblemonBreedingConfig.EGG_GROUP_ITEMS[it]))) {
+                        if (itemStack.item == BuiltInRegistries.ITEM.get(VeryScuffedCobblemonBreedingConfig.EGG_GROUP_ITEMS[it]?.let { it1 ->
+                                ResourceLocation.parse(
+                                    it1
+                                )
+                            })) {
                             eggGroupItemMatch = true
                         }
                     }
@@ -111,7 +115,7 @@ class BreedingInitializer {
 
                 val time = secondsUntilPokemonCanBreed(pokemon.pokemon.uuid)
                 if (time > 0) {
-                    player.sendMessage(Text.literal("Pokemon will be ready for breeding again in $time seconds").formatted(Formatting.RED))
+                    player.sendSystemMessage(Component.literal("Pokemon will be ready for breeding again in $time seconds").withStyle(ChatFormatting.RED))
                     return false
                 }
 
@@ -124,7 +128,7 @@ class BreedingInitializer {
         }
 
 
-        private fun checkTrainerPokemonForMate(player: PlayerEntity, party: PlayerPartyStore, pokemon: Pokemon): Pokemon? {
+        private fun checkTrainerPokemonForMate(player: ServerPlayer, party: PlayerPartyStore, pokemon: Pokemon): Pokemon? {
             try {
                 party.iterator().forEach {
                     if (pokemonWantsToBreed(it.uuid) && it.uuid != pokemon.uuid && it.gender != pokemon.gender) {
@@ -133,21 +137,21 @@ class BreedingInitializer {
                 }
             }
             catch (e: Exception) {
-                player.sendMessage(Text.literal("Unexpected error."))
+                player.sendSystemMessage(Component.literal("Unexpected error."))
             }
             return null;
         }
 
 
-        private fun tryRunBreed(player: PlayerEntity, pokemon1: Pokemon, pokemon2: Pokemon): ActionResult {
+        private fun tryRunBreed(player: ServerPlayer, pokemon1: Pokemon, pokemon2: Pokemon): InteractionResult {
             try {
                 return VeryScuffedCobblemonBreeding.pokebreed.hijackBreed(player, pokemon1, pokemon2)
             }
             catch (e: Exception) {
-                player.sendMessage(Text.literal("Something went wrong while trying to breed Pokemon. :("))
+                player.sendSystemMessage(Component.literal("Something went wrong while trying to breed Pokemon. :(").withStyle(ChatFormatting.RED))
             }
 
-            return ActionResult.PASS
+            return InteractionResult.PASS
         }
     }
 }
