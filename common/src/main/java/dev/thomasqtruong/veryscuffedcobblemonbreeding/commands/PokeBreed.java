@@ -249,7 +249,7 @@ public class PokeBreed {
    * @param player - player
    * @param pokemon1 - first pokemon to be bred
    * @param pokemon2 - second pokemon to be bred
-   * @return ActionResult
+   * @return InteractionResult
     */
   public InteractionResult hijackBreed(ServerPlayer player, Pokemon pokemon1, Pokemon pokemon2) {
     if (false) {
