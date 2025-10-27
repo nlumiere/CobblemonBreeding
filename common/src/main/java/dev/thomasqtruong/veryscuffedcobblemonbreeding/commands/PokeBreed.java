@@ -71,7 +71,7 @@ public class PokeBreed {
                     .executes(this::execute)
     );
     dispatcher.register(
-            Commands.literal("breedhelp").requires(src -> VeryScuffedCobblemonBreedingPermissions.checkPermission(src, VeryScuffedCobblemonBreeding.permissions.BREEDHELP_PERMISSION)).executes(this::execute)
+            Commands.literal("breedhelp").requires(src -> VeryScuffedCobblemonBreedingPermissions.checkPermission(src, VeryScuffedCobblemonBreeding.permissions.BREEDHELP_PERMISSION)).executes(this::executehelp)
     );
 
     // Set up scheduler.
