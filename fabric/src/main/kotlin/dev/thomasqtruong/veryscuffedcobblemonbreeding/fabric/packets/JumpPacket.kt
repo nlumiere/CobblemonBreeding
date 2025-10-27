@@ -1,9 +1,12 @@
+package dev.thomasqtruong.veryscuffedcobblemonbreeding.fabric.packets
+
 import com.cobblemon.mod.common.api.net.NetworkPacket
 import com.cobblemon.mod.common.api.types.ElementalTypes
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import dev.thomasqtruong.veryscuffedcobblemonbreeding.events.PokeMount
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.minecraft.network.RegistryFriendlyByteBuf
+import net.minecraft.network.chat.Component
 import net.minecraft.network.codec.StreamCodec
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload
 import net.minecraft.resources.ResourceLocation
@@ -18,7 +21,7 @@ class JumpPacket : NetworkPacket<JumpPacket> {
     override fun type(): CustomPacketPayload.Type<JumpPacket> = TYPE
 
     companion object {
-        val ID = ResourceLocation.fromNamespaceAndPath("cobblemonextras", "jump_packet")
+        val ID = ResourceLocation.fromNamespaceAndPath("veryscuffedcobblemonbreeding", "jump_packet")
         val TYPE: CustomPacketPayload.Type<JumpPacket> = CustomPacketPayload.Type(ID)
         
         val CODEC: StreamCodec<RegistryFriendlyByteBuf, JumpPacket> = StreamCodec.of(

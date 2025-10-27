@@ -15,7 +15,9 @@
     "main": [
       "dev.thomasqtruong.veryscuffedcobblemonbreeding.fabric.CobblemonFabric"
     ],
-    "client": []
+    "client": [
+      "dev.thomasqtruong.veryscuffedcobblemonbreeding.fabric.listeners.PokeMountMovementListener"
+    ]
   },
   "mixins": [],
   "depends": {

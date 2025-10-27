@@ -15,7 +15,7 @@ object Programs {
     
     // Create the custom item group
     private val PROGRAMS_TAB: CreativeModeTab = FabricItemGroup.builder()
-        .title(Component.translatable("itemGroup.cobblemonextras.programs"))
+        .title(Component.translatable("itemGroup.veryscuffedcobblemonbreeding.programs"))
         .icon { ItemStack(CHECKSPAWN) }
         .displayItems { _, entries ->
             entries.accept(CHECKSPAWN)
@@ -26,7 +26,7 @@ object Programs {
         // Register the custom item group
         Registry.register(
             BuiltInRegistries.CREATIVE_MODE_TAB,
-            ResourceLocation.fromNamespaceAndPath("cobblemonextras", "programs"),
+            ResourceLocation.fromNamespaceAndPath("veryscuffedcobblemonbreeding", "programs"),
             PROGRAMS_TAB
         )
     }
@@ -34,7 +34,7 @@ object Programs {
     private fun registerItem(itemName: String, item: Item): Item {
         return Registry.register(
             BuiltInRegistries.ITEM,
-            ResourceLocation.fromNamespaceAndPath("cobblemonextras", itemName),
+            ResourceLocation.fromNamespaceAndPath("veryscuffedcobblemonbreeding", itemName),
             item
         )
     }
