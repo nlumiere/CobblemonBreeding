@@ -1,0 +1,23 @@
+{
+  "type": "crafting_shaped",
+  "pattern": [
+    "DBD",
+    "P P",
+    "PBP"
+  ],
+  "key": {
+    "B": {
+      "item": "cobblemon:black_apricorn_seed"
+    },
+    "P": {
+      "item": "cobblemon:pink_apricorn_seed"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    }
+  },
+  "result": {
+    "id": "cobblemon:power_lens",
+    "count": 1
+  }
+}

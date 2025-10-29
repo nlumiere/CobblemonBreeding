@@ -1,0 +1,12 @@
+{
+  "type": "crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {"item": "minecraft:music_disc_strad"},
+    {"item": "cobblemon:upgrade"}
+  ],
+  "result": {
+    "id": "veryscuffedcobblemonbreeding:checkspawn",
+    "count": 1
+  }
+}

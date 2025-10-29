@@ -1,0 +1,20 @@
+{
+  "type": "crafting_shaped",
+  "pattern": [
+    "GGD",
+    "G G",
+    "DGG"
+  ],
+  "key": {
+    "G": {
+      "item": "cobblemon:green_apricorn_seed"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    }
+  },
+  "result": {
+    "id": "cobblemon:power_weight",
+    "count": 1
+  }
+}

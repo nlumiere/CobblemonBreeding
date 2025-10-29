@@ -1,0 +1,20 @@
+{
+  "type": "crafting_shaped",
+  "pattern": [
+    "SSD",
+    "S S",
+    "DSS"
+  ],
+  "key": {
+    "S": {
+      "item": "cobblemon:yellow_apricorn_seed"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    }
+  },
+  "result": {
+    "id": "cobblemon:power_band",
+    "count": 1
+  }
+}

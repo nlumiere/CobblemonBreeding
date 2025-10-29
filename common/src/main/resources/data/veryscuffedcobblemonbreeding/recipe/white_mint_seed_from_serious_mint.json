@@ -1,0 +1,11 @@
+{
+  "type": "crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {"item": "cobblemon:serious_mint"}
+  ],
+  "result": {
+    "id": "cobblemon:white_mint_seeds",
+    "count": 1
+  }
+}

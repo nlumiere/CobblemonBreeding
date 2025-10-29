@@ -1,0 +1,23 @@
+{
+  "type": "crafting_shaped",
+  "pattern": [
+    "RYD",
+    "Y Y",
+    "DYR"
+  ],
+  "key": {
+    "R": {
+      "item": "cobblemon:red_apricorn_seed"
+    },
+    "Y": {
+      "item": "cobblemon:yellow_apricorn_seed"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    }
+  },
+  "result": {
+    "id": "cobblemon:power_belt",
+    "count": 1
+  }
+}

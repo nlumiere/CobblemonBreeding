@@ -1,0 +1,23 @@
+{
+  "type": "crafting_shaped",
+  "pattern": [
+    "WBD",
+    "B B",
+    "DBW"
+  ],
+  "key": {
+    "B": {
+      "item": "cobblemon:blue_apricorn_seed"
+    },
+    "W": {
+      "item": "cobblemon:white_apricorn_seed"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    }
+  },
+  "result": {
+    "id": "cobblemon:power_anklet",
+    "count": 1
+  }
+}

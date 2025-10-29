@@ -1,0 +1,20 @@
+{
+  "type": "crafting_shaped",
+  "pattern": [
+    "RRD",
+    "R R",
+    "DRR"
+  ],
+  "key": {
+    "R": {
+      "item": "cobblemon:red_apricorn_seed"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    }
+  },
+  "result": {
+    "id": "cobblemon:power_bracer",
+    "count": 1
+  }
+}
