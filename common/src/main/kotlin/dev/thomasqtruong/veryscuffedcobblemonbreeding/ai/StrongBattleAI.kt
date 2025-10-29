@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package com.cobblemon.mod.common.battles.ai
+package dev.thomasqtruong.veryscuffedcobblemonbreeding.ai
 
 import com.cobblemon.mod.common.CobblemonItems
 import com.cobblemon.mod.common.api.abilities.Abilities
@@ -776,8 +776,8 @@ class StrongBattleAI(skill: Int) : BattleAI {
         // todo Check for Skill of AI and see if they will make a smart move
         if (!checkSkillLevel(skill)){
             // todo choose random move
-            if (moveset == null) {
-                return PassActionResponse
+            if (moveset.moves.isEmpty()) {
+                throw Exception("Error in moveset.")
             }
             val move = moveset.moves
                     .filter { it.canBeUsed() }
@@ -834,7 +834,7 @@ class StrongBattleAI(skill: Int) : BattleAI {
 
         // Decision-making based on move availability and switch-out condition
         if (!moveset?.moves?.isEmpty()!! && !shouldSwitchOut(request, battle, activeBattlePokemon, moveset) ||
-                (request.side?.pokemon?.count { getHpFraction(it.condition) != 0.0 } == 1 && (mon.currentHp.toDouble() / mon.pokemon!!.hp.toDouble()) == 1.0)) {
+                (request.side?.pokemon?.count { getHpFraction(it.condition) != 0.0 } == 1 && (mon.currentHp.toDouble() / mon.pokemon!!.maxHealth.toDouble()) == 1.0)) {
             val nRemainingMons = activeTracker.p2Active.nRemainingMons
             val nOppRemainingMons = activeTracker.p1Active.nRemainingMons
 
@@ -857,8 +857,8 @@ class StrongBattleAI(skill: Int) : BattleAI {
             // Explosion/Self destruct
             allMoves?.firstOrNull {
                 (it.id.equals("explosion") || it.id.equals("selfdestruct"))
-                        && (mon.currentHp.toDouble() / mon.pokemon!!.hp.toDouble()) < selfKoMoveMatchupThreshold
-                        && (opponent.currentHp.toDouble() / opponent.pokemon!!.hp.toDouble()) > 0.5
+                        && (mon.currentHp.toDouble() / mon.pokemon!!.maxHealth.toDouble()) < selfKoMoveMatchupThreshold
+                        && (opponent.currentHp.toDouble() / opponent.pokemon!!.maxHealth.toDouble()) > 0.5
                         && ElementalTypes.GHOST !in opponent.pokemon!!.types
                         && it.pp > 0
             }?.let {
@@ -867,7 +867,7 @@ class StrongBattleAI(skill: Int) : BattleAI {
 
             // Self recovery moves
             for (move in moveset.moves.filter { !it.disabled }) {
-                if (move.id in selfRecoveryMoves && (mon.currentHp.toDouble() / mon.pokemon!!.hp.toDouble()) < recoveryMoveThreshold && move.pp > 0) {
+                if (move.id in selfRecoveryMoves && (mon.currentHp.toDouble() / mon.pokemon!!.maxHealth.toDouble()) < recoveryMoveThreshold && move.pp > 0) {
                     return chooseMove(move, activeBattlePokemon)
                 }
             }
@@ -950,7 +950,7 @@ class StrongBattleAI(skill: Int) : BattleAI {
 
             // Strength Sap
             for (move in moveset.moves.filter { !it.disabled }) {
-                if (move.id == "strengthsap" && (mon.currentHp.toDouble() / mon.pokemon!!.hp.toDouble()) < 0.5
+                if (move.id == "strengthsap" && (mon.currentHp.toDouble() / mon.pokemon!!.maxHealth.toDouble()) < 0.5
                         && getBaseStats(opponent.pokemon!!, "atk") > 80
                         && move.pp > 0) {
                     return chooseMove(move, activeBattlePokemon)
@@ -967,8 +967,8 @@ class StrongBattleAI(skill: Int) : BattleAI {
             // Belly Drum
             for (move in moveset.moves.filter { !it.disabled }) {
                 if (move.id == "bellydrum"
-                        && ((mon.currentHp.toDouble() / mon.pokemon!!.hp.toDouble()) > 0.6
-                        || (mon.currentHp.toDouble() / mon.pokemon!!.hp.toDouble()) > 0.8)
+                        && ((mon.currentHp.toDouble() / mon.pokemon!!.maxHealth.toDouble()) > 0.6
+                        || (mon.currentHp.toDouble() / mon.pokemon!!.maxHealth.toDouble()) > 0.8)
                         && npcATKBoosts < 1 // todo Why does Belly Drum only show up as a single boost to Atk stat
                         && move.pp > 0) {
                     return chooseMove(move, activeBattlePokemon)
@@ -989,7 +989,7 @@ class StrongBattleAI(skill: Int) : BattleAI {
 
             // todo GET THIS WORKING and ensure no crashes happen
             // Setup moves
-            if ((mon.currentHp.toDouble() / mon.pokemon!!.hp.toDouble()) == 1.0 && estimateMatchup(activeBattlePokemon, request, battle) > 0) {
+            if ((mon.currentHp.toDouble() / mon.pokemon!!.maxHealth.toDouble()) == 1.0 && estimateMatchup(activeBattlePokemon, request, battle) > 0) {
                 for (move in moveset.moves.filter { !it.disabled }) {
                     if (move.pp > 0 && setupMoves.contains(move.id) && ((getNonZeroStats(move.id).keys.minOfOrNull { // todo this can have a null exception with lvl 50 pidgeot with tailwind
                             mon.boosts[it] ?: 0
@@ -1032,7 +1032,7 @@ class StrongBattleAI(skill: Int) : BattleAI {
                     // Make sure the opponent doesn't already have a status condition
                     //if ((it.volatiles.containsKey("curse") || it.status != null) && // todo I removed this because idk why you would need to know if it had curse
                 if (moveset.moves.any { (calculateDamage(it, mon, opponent, currentWeather) >= (opponent.currentHp.toDouble() * statusDamageConsiderationThreshold)) } == false) // if there is a move that could OHKO the opponent then don't bother using a status move
-                    if (activePlayerPokemonStatus == "" && (opponent.currentHp.toDouble() / opponent.pokemon!!.hp.toDouble()) > 0.3 && (mon.currentHp.toDouble() / mon.pokemon!!.hp.toDouble()) > 0.5) { // todo make sure this is the right status to use. It might not be
+                    if (activePlayerPokemonStatus == "" && (opponent.currentHp.toDouble() / opponent.pokemon!!.maxHealth.toDouble()) > 0.3 && (mon.currentHp.toDouble() / mon.pokemon!!.maxHealth.toDouble()) > 0.5) { // todo make sure this is the right status to use. It might not be
 
                         val status = (statusMoves.get(Moves.getByName(move.id)))
                         when (status) {
@@ -1111,7 +1111,7 @@ class StrongBattleAI(skill: Int) : BattleAI {
 
             // Accuracy lowering moves // todo seems to get stuck here. Try to check if it is an accuracy lowering move first before entering
             for (move in moveset.moves.filter { !it.disabled }) {
-                if (move.pp > 0 && 1 == 2 && (mon.currentHp.toDouble() / mon.pokemon!!.hp.toDouble()) == 1.0 && estimateMatchup(activeBattlePokemon, request, battle) > 0 &&
+                if (move.pp > 0 && 1 == 2 && (mon.currentHp.toDouble() / mon.pokemon!!.maxHealth.toDouble()) == 1.0 && estimateMatchup(activeBattlePokemon, request, battle) > 0 &&
                         (opponent.boosts[Stats.ACCURACY] ?: 0) > accuracySwitchThreshold) {
                     return chooseMove(move, activeBattlePokemon)
                 }
@@ -1293,7 +1293,7 @@ class StrongBattleAI(skill: Int) : BattleAI {
 
         // healing wish (dealing with it here because you'd only use it if you should switch out anyway)
         for (move in moveset.moves.filter { !it.disabled }) {
-            if (move.id.equals("healingwish") && (mon.currentHp.toDouble() / mon.pokemon!!.hp.toDouble()) < selfKoMoveMatchupThreshold) {
+            if (move.id.equals("healingwish") && (mon.currentHp.toDouble() / mon.pokemon!!.maxHealth.toDouble()) < selfKoMoveMatchupThreshold) {
                 return chooseMove(move, activeBattlePokemon)
             }
         }
@@ -1315,7 +1315,7 @@ class StrongBattleAI(skill: Int) : BattleAI {
 
         // otherwise can't find a good option so use a random move
         //return Pair(prng.sample(moves.map { it.choice }), false)
-        if (moveset == null) {
+        if (moveset.moves.isEmpty()) {
             return PassActionResponse
         }
         val move = moveset.moves
@@ -1416,13 +1416,13 @@ class StrongBattleAI(skill: Int) : BattleAI {
 
         // HP comparisons
         if (request.side?.id == "p1") {
-            score += if (nonActiveMon != null) (nonActiveMon.hp * hpFractionCoefficient) * hpWeightConsideration
-            else (activeTracker.p1Active.activePokemon.pokemon!!.hp * hpFractionCoefficient) * hpWeightConsideration
-            score -= (activeTracker.p2Active.activePokemon.pokemon!!.hp * hpFractionCoefficient) * hpWeightConsideration
+            score += if (nonActiveMon != null) (nonActiveMon.maxHealth * hpFractionCoefficient) * hpWeightConsideration
+            else (activeTracker.p1Active.activePokemon.pokemon!!.maxHealth * hpFractionCoefficient) * hpWeightConsideration
+            score -= (activeTracker.p2Active.activePokemon.pokemon!!.maxHealth * hpFractionCoefficient) * hpWeightConsideration
         } else {
-            score += if (nonActiveMon != null) (nonActiveMon.hp * hpFractionCoefficient) * hpWeightConsideration
-            else (activeTracker.p2Active.activePokemon.pokemon!!.hp * hpFractionCoefficient) * hpWeightConsideration
-            score -= (activeTracker.p1Active.activePokemon.pokemon!!.hp * hpFractionCoefficient) * hpWeightConsideration
+            score += if (nonActiveMon != null) (nonActiveMon.maxHealth * hpFractionCoefficient) * hpWeightConsideration
+            else (activeTracker.p2Active.activePokemon.pokemon!!.maxHealth * hpFractionCoefficient) * hpWeightConsideration
+            score -= (activeTracker.p1Active.activePokemon.pokemon!!.maxHealth * hpFractionCoefficient) * hpWeightConsideration
         }
 
         // add value to a pokemon with stat boost removal moves/abilities/items
@@ -1470,12 +1470,12 @@ class StrongBattleAI(skill: Int) : BattleAI {
             }
 
             // Matchup advantage and full hp on full hp
-            if (estimateMatchup(activeBattlePokemon, request, battle) > 0 && (mon.activePokemon.currentHp.toDouble() / mon.activePokemon.pokemon!!.hp.toDouble()) == 1.0 && (opponent.activePokemon.currentHp.toDouble() / opponent.activePokemon.pokemon!!.hp.toDouble()) == 1.0) {
+            if (estimateMatchup(activeBattlePokemon, request, battle) > 0 && (mon.activePokemon.currentHp.toDouble() / mon.activePokemon.pokemon!!.maxHealth.toDouble()) == 1.0 && (opponent.activePokemon.currentHp.toDouble() / opponent.activePokemon.pokemon!!.maxHealth.toDouble()) == 1.0) {
                 return true
             }
 
             // last pokemon
-            if (request.side?.pokemon?.count { getHpFraction(it.condition) != 0.0 } == 1 && (mon.activePokemon.currentHp.toDouble() / mon.activePokemon.pokemon!!.hp.toDouble()) == 1.0) {
+            if (request.side?.pokemon?.count { getHpFraction(it.condition) != 0.0 } == 1 && (mon.activePokemon.currentHp.toDouble() / mon.activePokemon.pokemon!!.maxHealth.toDouble()) == 1.0) {
                 return true
             }
         }
@@ -1513,7 +1513,7 @@ class StrongBattleAI(skill: Int) : BattleAI {
         // todo add some way to keep track of the player's boosting to see if it needs to switch out to something that can stop it
 
         // if slower speed stat than the opposing pokemon and HP is less than 20% don't switch out
-        if ((npcActivePokemon.activePokemon.currentHp.toDouble() / npcActivePokemon.activePokemon.pokemon!!.hp.toDouble()) < hpSwitchOutThreshold && (npcActivePokemon.activePokemon.pokemon!!.species.baseStats[Stats.SPEED]!! < playerActivePokemon.activePokemon.pokemon!!.species.baseStats[Stats.SPEED]!!)) {
+        if ((npcActivePokemon.activePokemon.currentHp.toDouble() / npcActivePokemon.activePokemon.pokemon!!.maxHealth.toDouble()) < hpSwitchOutThreshold && (npcActivePokemon.activePokemon.pokemon!!.species.baseStats[Stats.SPEED]!! < playerActivePokemon.activePokemon.pokemon!!.species.baseStats[Stats.SPEED]!!)) {
             return false
         }
 
@@ -1549,7 +1549,7 @@ class StrongBattleAI(skill: Int) : BattleAI {
                                 ?: 0) <= (playerActivePokemon.activePokemon.stats[Stats.SPECIAL_ATTACK] ?: 0)) {
                     return true
                 }
-                if ((estimateMatchup(activeBattlePokemon, request, battle) < switchOutMatchupThreshold) && (npcActivePokemon.activePokemon.currentHp.toDouble() / npcActivePokemon.activePokemon.pokemon!!.hp.toDouble()) > hpSwitchOutThreshold) {
+                if ((estimateMatchup(activeBattlePokemon, request, battle) < switchOutMatchupThreshold) && (npcActivePokemon.activePokemon.currentHp.toDouble() / npcActivePokemon.activePokemon.pokemon!!.maxHealth.toDouble()) > hpSwitchOutThreshold) {
                     return true
                 }
             }
@@ -1867,7 +1867,7 @@ class StrongBattleAI(skill: Int) : BattleAI {
         p1.activePokemon.pokemon = pokemon1
         p1.activePokemon.species = pokemon1!!.species.name
         p1.activePokemon.currentHp = pokemon1.currentHealth
-        p1.activePokemon.currentHpPercent = (pokemon1.currentHealth.toDouble() / pokemon1.hp.toDouble()) // todo this is not syncing. Possibly needs syncActivePokemon called later
+        p1.activePokemon.currentHpPercent = (pokemon1.currentHealth.toDouble() / pokemon1.maxHealth.toDouble()) // todo this is not syncing. Possibly needs syncActivePokemon called later
         p1.activePokemon.boosts = p1BoostsMap
         p1.activePokemon.atkBoost = playerATKPosBoosts - playerATKNegBoosts
         p1.activePokemon.defBoost = playerDEFPosBoosts - playerDEFNegBoosts
@@ -1903,7 +1903,7 @@ class StrongBattleAI(skill: Int) : BattleAI {
         p2.activePokemon.pokemon = pokemon2
         p2.activePokemon.species = pokemon2!!.species.name
         p2.activePokemon.currentHp = pokemon2.currentHealth
-        p2.activePokemon.currentHpPercent = (pokemon2.currentHealth.toDouble() / pokemon2.hp.toDouble()) // todo this is not syncing. Possibly needs syncActivePokemon called later
+        p2.activePokemon.currentHpPercent = (pokemon2.currentHealth.toDouble() / pokemon2.maxHealth.toDouble()) // todo this is not syncing. Possibly needs syncActivePokemon called later
         p2.activePokemon.boosts = p2BoostsMap
         p2.activePokemon.boosts[Stats.ATTACK] = p2.activePokemon.atkBoost
         p2.activePokemon.boosts[Stats.DEFENCE] = p2.activePokemon.defBoost
@@ -1956,53 +1956,6 @@ class StrongBattleAI(skill: Int) : BattleAI {
         //val opponent = if (request.side?.id == "p1") activeTracker.p2Active else activeTracker.p1Active
 
         return Pair(mon!!, opponent!!)
-    }
-}
-
-class Optimization {
-    companion object {
-        fun optimizeEVs(pokemon: Pokemon) {
-            val stats = hashMapOf(
-                Stats.HP to pokemon.hp,
-                Stats.ATTACK to pokemon.attack,
-                Stats.DEFENCE to pokemon.defence,
-                Stats.SPECIAL_ATTACK to pokemon.specialAttack,
-                Stats.SPECIAL_DEFENCE to pokemon.specialDefence,
-                Stats.SPEED to pokemon.speed
-            )
-
-            val sortedStats = stats.entries.sortedByDescending { it.value }.take(3).map { it.key to it.value }
-
-            var points = 510
-            var defensesDone = false
-            sortedStats.forEach {
-                if ((it.first == Stats.DEFENCE || it.first == Stats.SPECIAL_DEFENCE) && !defensesDone) {
-                    val pointsToSpend = min(points, 252)
-                    pokemon.evs[Stats.HP] = pointsToSpend
-                    points -= pointsToSpend
-                    val pointsToSpend2 = min(points, 120)
-                    if (it.first == Stats.DEFENCE) {
-                        pokemon.evs[Stats.SPECIAL_DEFENCE] = pointsToSpend2
-                    } else {
-                        pokemon.evs[Stats.DEFENCE] = pointsToSpend2
-                    }
-                    points -= pointsToSpend2
-                    defensesDone = true
-                }
-                else {
-                    val pointsToSpend = min(points, 252)
-                    pokemon.evs[it.first] = pointsToSpend
-                    points - pointsToSpend
-                }
-            }
-        }
-
-        fun optimizeIVs(pokemon: Pokemon) {
-            val allStats = arrayOf(Stats.HP, Stats.ATTACK, Stats.DEFENCE, Stats.SPECIAL_DEFENCE, Stats.SPECIAL_ATTACK, Stats.SPEED)
-            allStats.forEach {
-                pokemon.setIV(it, 31)
-            }
-        }
     }
 }
 

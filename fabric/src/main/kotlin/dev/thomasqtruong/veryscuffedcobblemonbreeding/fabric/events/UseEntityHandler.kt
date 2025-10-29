@@ -140,15 +140,6 @@ class UseEntityHandler : UseEntityCallback {
 
             // If villager is unemployed, they must be a pokemon trainer. I don't make the rules.
             if (villagerEntity.villagerData.profession == VillagerProfession.NONE || villagerEntity.villagerData.profession == VillagerProfession.NITWIT) {
-                val timeLeft = timeBeforeVillagerCanBattle(villagerEntity.uuid)
-                if (timeLeft > 0) {
-                    player.sendSystemMessage(
-                        Component.literal("You must wait another $timeLeft seconds before battling with this villager again.")
-                            .withStyle(ChatFormatting.RED)
-                    )
-                    return InteractionResult.PASS
-                }
-
                 // Start trainer battle against villager
                 val heldItemStack: ItemStack = player.getItemInHand(hand)
                 val heldItem = heldItemStack.item
@@ -164,6 +155,15 @@ class UseEntityHandler : UseEntityCallback {
                     battleLevel = VillagerBattle.BattleLevel.UNFAIR
                 } else if (partyOut) {
                     player.sendSystemMessage(Component.literal("This villager can battle, but only will if there's a wager.\nEasy: Iron Ingot\nMedium: Emerald\nHard: Diamond\nExtreme: Netherite Ingot\nUnfair: Netherite Block"))
+                    return InteractionResult.PASS
+                }
+
+                val timeLeft = timeBeforeVillagerCanBattle(villagerEntity.uuid)
+                if (timeLeft > 0) {
+                    player.sendSystemMessage(
+                        Component.literal("You must wait another $timeLeft seconds before battling with this villager again.")
+                            .withStyle(ChatFormatting.RED)
+                    )
                     return InteractionResult.PASS
                 }
 
@@ -184,13 +184,18 @@ class UseEntityHandler : UseEntityCallback {
                     return InteractionResult.PASS
                 }
 
-                heldItemStack.shrink(1)
+                player.sendSystemMessage(Component.literal("Trying to start battle with villager..."))
                 val result = VillagerBattle.startBattle(player as ServerPlayer, villagerEntity, battleLevel)
                 if (result == InteractionResult.SUCCESS) {
                     BattleRegistryListener.put(player, villagerEntity, heldItem)
+                    heldItemStack.shrink(1)
+                }
+                else {
+                    player.sendSystemMessage(Component.literal("There was an error starting the battle.").withStyle(ChatFormatting.RED))
                 }
             }
         } catch (e: Exception) {
+            player.sendSystemMessage(Component.literal("There was an exception: $e").withStyle(ChatFormatting.RED))
         }
 
         return InteractionResult.PASS
