@@ -8,19 +8,15 @@ import com.cobblemon.mod.common.api.storage.party.PartyStore
 import com.cobblemon.mod.common.battles.*
 import com.cobblemon.mod.common.battles.BattleRegistry.getBattleByParticipatingPlayer
 import com.cobblemon.mod.common.battles.actor.PlayerBattleActor
-import com.cobblemon.mod.common.battles.actor.TrainerBattleActor
-import com.cobblemon.mod.common.battles.ai.StrongBattleAI
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon
-import com.cobblemon.mod.common.entity.npc.NPCBattleActor
-import com.cobblemon.mod.common.entity.npc.NPCEntity
 import dev.thomasqtruong.veryscuffedcobblemonbreeding.ai.Optimization
 import com.cobblemon.mod.common.pokemon.Pokemon
 import com.cobblemon.mod.common.pokemon.evolution.requirements.LevelRequirement
+import com.cobblemon.mod.common.util.giveOrDropItemStack
 import com.cobblemon.mod.common.util.party
-import com.cobblemon.mod.common.util.update
 import dev.thomasqtruong.veryscuffedcobblemonbreeding.ai.VillagerActor
+import dev.thomasqtruong.veryscuffedcobblemonbreeding.util.Rewards
 import net.minecraft.ChatFormatting
-import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionResult
@@ -30,6 +26,7 @@ import java.util.*
 import kotlin.random.Random
 
 class VillagerBattle {
+
     enum class BattleLevel(val num: Int) {
         EASY(0),
         MEDIUM(1),
@@ -39,7 +36,16 @@ class VillagerBattle {
     }
 
     companion object {
+        val requestSet: HashSet<UUID> = HashSet.newHashSet(0)
+
         fun startBattle(player: ServerPlayer, villagerEntity: Villager, battleLevel: BattleLevel = BattleLevel.EASY): InteractionResult {
+            if (requestSet.contains(player.uuid))
+            {
+                requestSet.remove(player.uuid)
+                return InteractionResult.PASS
+            }
+
+            requestSet.add(player.uuid)
             if (getBattleByParticipatingPlayer(player) != null) {
                 return InteractionResult.PASS
             }
@@ -59,12 +65,11 @@ class VillagerBattle {
                 }
             }
 
-            val playerActor = PlayerBattleActor(player.uuid, playerTeam)
-
             val playerAceLevel = player.party().maxOf { it -> it.level }
 
             val skill = 5
-            val npcParty = List<BattlePokemon>(6) { index ->
+            // TODO: Make 6
+            val npcParty = List<BattlePokemon>(1 ) { index ->
                 var pkmn = Pokemon()
                 // Only kids can have legies
                 if (!villagerEntity.isBaby && (pkmn.isLegendary() || pkmn.isMythical()) && battleLevel != BattleLevel.EXTREME && battleLevel != BattleLevel.UNFAIR) {
@@ -168,12 +173,8 @@ class VillagerBattle {
                 }
             }
 
-            val npcActor = TrainerBattleActor("Villager", villagerEntity.uuid, npcParty, StrongBattleAI(skill))
-
-//            val battleFormat = if (battleLevel == BattleLevel.EASY) BattleFormat.GEN_9_SINGLES else if (Random.nextInt() % 2 == 0) BattleFormat.GEN_9_SINGLES else BattleFormat.GEN_9_DOUBLES
             val battleFormat = BattleFormat.GEN_9_SINGLES
-            var result = InteractionResult.PASS
-            pvv(
+            val response = pvv(
                 player,
                 villagerEntity,
                 npcParty,
@@ -184,9 +185,9 @@ class VillagerBattle {
                 player.party(),
                 battleLevel.num + 1
             )
-            // Really bemoaning the current nonexistence of onEndHandlers rn :/
 
-            return result
+            player.sendSystemMessage(Component.literal("Battle started!").withStyle(ChatFormatting.GREEN))
+            return InteractionResult.SUCCESS
         }
 
         /**
@@ -241,10 +242,16 @@ class VillagerBattle {
                     side1 = BattleSide(playerActor),
                     side2 = BattleSide(npcActor)
                 ).ifSuccessful { battle ->
-                    npcEntity.entityData.update(NPCEntity.BATTLE_IDS) { it + battle.battleId }
+//                    npcEntity.entityData.update(NPCEntity.BATTLE_IDS) { it + battle.battleId }
+                    requestSet.remove(player.uuid)
+                    npcActor.pokemonList.forEach {
+                        it.actor = npcActor
+                        it.entity?.drops = null
+                    }
                 }
             } else {
-                errors
+                player.giveOrDropItemStack(ItemStack(Rewards.getWagerItem(difficulty)))
+                errors.forError<BattleStartError> { it -> player.sendSystemMessage(Component.literal(it.toString()))}
             }
         }
     }

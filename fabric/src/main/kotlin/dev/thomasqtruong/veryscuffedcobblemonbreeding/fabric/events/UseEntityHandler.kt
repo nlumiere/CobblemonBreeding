@@ -6,9 +6,8 @@ import com.cobblemon.mod.common.util.party
 import dev.thomasqtruong.veryscuffedcobblemonbreeding.events.PokeMount
 import dev.thomasqtruong.veryscuffedcobblemonbreeding.events.VillagerBattle
 import dev.thomasqtruong.veryscuffedcobblemonbreeding.events.VillagerBattle.BattleLevel
-import dev.thomasqtruong.veryscuffedcobblemonbreeding.fabric.listeners.BattleRegistryListener
-import dev.thomasqtruong.veryscuffedcobblemonbreeding.fabric.listeners.BattleRegistryListener.Companion.timeBeforeVillagerCanBattle
 import dev.thomasqtruong.veryscuffedcobblemonbreeding.BreedingInitializer
+import dev.thomasqtruong.veryscuffedcobblemonbreeding.fabric.listeners.BattleRegistryListener
 import net.fabricmc.fabric.api.event.player.UseEntityCallback
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
@@ -119,11 +118,16 @@ class UseEntityHandler : UseEntityCallback {
             val party = Cobblemon.storage.getParty(serverPlayer);
             val villagerEntity = entity as Villager
 
+            if (VillagerBattle.requestSet.contains(player.uuid) || BattleRegistryListener.isPlayerBattling(player.uuid)) {
+                return InteractionResult.PASS
+            }
+
             if (party.toList().isEmpty() || party.first().isFainted()) {
                 serverPlayer.sendSystemMessage(
                     Component.literal("The first member of your party does not exist or is ineligible for battle. Please change your first party slot and try again.")
                         .withStyle(ChatFormatting.RED)
                 )
+                return InteractionResult.PASS
             }
 
             var partyOut = false
@@ -158,7 +162,7 @@ class UseEntityHandler : UseEntityCallback {
                     return InteractionResult.PASS
                 }
 
-                val timeLeft = timeBeforeVillagerCanBattle(villagerEntity.uuid)
+                val timeLeft = BattleRegistryListener.timeBeforeVillagerCanBattle(villagerEntity.uuid)
                 if (timeLeft > 0) {
                     player.sendSystemMessage(
                         Component.literal("You must wait another $timeLeft seconds before battling with this villager again.")
@@ -175,7 +179,7 @@ class UseEntityHandler : UseEntityCallback {
                     return InteractionResult.PASS
                 }
 
-                val playerAceLevel = (player as ServerPlayer).party().maxOf { it -> it.level }
+                val playerAceLevel = (player).party().maxOf { it -> it.level }
 
                 if (playerAceLevel < 40 && battleLevel == BattleLevel.DIFFICULT) {
                     player.sendSystemMessage(
@@ -184,18 +188,14 @@ class UseEntityHandler : UseEntityCallback {
                     return InteractionResult.PASS
                 }
 
-                player.sendSystemMessage(Component.literal("Trying to start battle with villager..."))
-                val result = VillagerBattle.startBattle(player as ServerPlayer, villagerEntity, battleLevel)
+                val result = VillagerBattle.startBattle(player, villagerEntity, battleLevel)
                 if (result == InteractionResult.SUCCESS) {
                     BattleRegistryListener.put(player, villagerEntity, heldItem)
                     heldItemStack.shrink(1)
                 }
-                else {
-                    player.sendSystemMessage(Component.literal("There was an error starting the battle.").withStyle(ChatFormatting.RED))
-                }
             }
         } catch (e: Exception) {
-            player.sendSystemMessage(Component.literal("There was an exception: $e").withStyle(ChatFormatting.RED))
+            player.sendSystemMessage(Component.literal(e.stackTraceToString()))
         }
 
         return InteractionResult.PASS

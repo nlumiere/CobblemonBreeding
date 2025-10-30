@@ -15,17 +15,16 @@ import com.cobblemon.mod.common.api.battles.model.actor.ActorType
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor
 import com.cobblemon.mod.common.api.battles.model.actor.EntityBackedBattleActor
 import com.cobblemon.mod.common.api.net.NetworkPacket
-import com.cobblemon.mod.common.api.storage.party.PartyStore
 import com.cobblemon.mod.common.battles.ai.StrongBattleAI
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon
 import com.cobblemon.mod.common.net.messages.client.battle.BattleEndPacket
-import com.cobblemon.mod.common.util.battleLang
-import com.cobblemon.mod.common.util.chainFutures
-import com.cobblemon.mod.common.util.effectiveName
-import com.cobblemon.mod.common.util.update
-import net.minecraft.world.entity.AgeableMob
+import com.cobblemon.mod.common.util.*
+import dev.thomasqtruong.veryscuffedcobblemonbreeding.util.Rewards
+import net.minecraft.network.chat.Component
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.npc.Villager
+import net.minecraft.world.item.ItemStack
 import java.util.concurrent.CompletableFuture
 
 class VillagerActor(
@@ -42,6 +41,7 @@ class VillagerActor(
     override fun getName() = entity.effectiveName().copy()
     override fun nameOwned(name: String) = battleLang("owned_pokemon", this.getName(), name)
     override val initialPos = entity.position()
+    val skill = skill
 
 //    constructor(
 //        npc: Villager,
@@ -77,6 +77,13 @@ class VillagerActor(
     }
 
     override fun lose(winners: List<BattleActor>, otherLosers: List<BattleActor>) {
+        var player: ServerPlayer? = null
+        val item = Rewards.getRandomItem(skill)
+        winners.forEach {
+            player = it.uuid.getPlayer()
+        }
+        player?.sendSystemMessage(Component.literal("You won! You recieved $item"))
+        player?.giveOrDropItemStack(ItemStack(item))
         super.lose(winners, otherLosers)
     }
 }

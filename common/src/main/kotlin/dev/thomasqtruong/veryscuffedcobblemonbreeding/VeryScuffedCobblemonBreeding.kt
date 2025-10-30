@@ -5,6 +5,7 @@ import dev.thomasqtruong.veryscuffedcobblemonbreeding.commands.*
 import dev.thomasqtruong.veryscuffedcobblemonbreeding.config.CobblemonConfig
 import dev.thomasqtruong.veryscuffedcobblemonbreeding.config.VeryScuffedCobblemonBreedingConfig
 import dev.thomasqtruong.veryscuffedcobblemonbreeding.permissions.VeryScuffedCobblemonBreedingPermissions
+import dev.thomasqtruong.veryscuffedcobblemonbreeding.util.Rewards
 import net.minecraft.commands.CommandSourceStack
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -22,6 +23,7 @@ object VeryScuffedCobblemonBreeding {
 
     // Load official Cobblemon's config.
     CobblemonConfig()
+    Rewards.initialize()
   }
 
   fun getLogger(): Logger {
